@@ -1,0 +1,21 @@
+{
+    "name": "bahuma/bahuma-abrechnung",
+    "autoload": {
+        "psr-4": {
+            "Bahuma\\BahumaAbrechnung\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Max Bachhuber",
+            "email": "bahuma20@bahuma.io"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "guzzlehttp/guzzle": "^7.0",
+        "monolog/monolog": "^3.5",
+        "shuchkin/simplexlsxgen": "^1.3",
+        "vlucas/phpdotenv": "^5.6"
+    }
+}
