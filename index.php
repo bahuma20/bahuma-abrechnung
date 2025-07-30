@@ -7,8 +7,7 @@ require 'vendor/autoload.php';
 $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->required([
     'PAPERLESS_URL',
-    'PAPERLESS_USERNAME',
-    'PAPERLESS_PASSWORD',
+    'PAPERLESS_TOKEN',
     'CUSTOM_FIELD_BETRAG',
     'CUSTOM_FIELD_RECHNUNGSNUMMER',
     'DOCUMENT_TYPE_EINGANGSRECHNUNG',

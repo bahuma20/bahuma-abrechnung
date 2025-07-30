@@ -18,8 +18,7 @@ use Shuchkin\SimpleXLSXGen;
 class App
 {
     private string $baseUrl;
-    private string $username;
-    private string $password;
+    private string $token;
 
     private int $customFieldBetrag;
     private int $customFieldRechnungsnummer;
@@ -36,8 +35,7 @@ class App
     public function __construct()
     {
         $this->baseUrl = $_ENV['PAPERLESS_URL'] . "/api/";
-        $this->username = $_ENV['PAPERLESS_USERNAME'];
-        $this->password = $_ENV['PAPERLESS_PASSWORD'];
+        $this->token = $_ENV['PAPERLESS_TOKEN'];
 
         $this->customFieldBetrag = intval($_ENV['CUSTOM_FIELD_BETRAG']);
         $this->customFieldRechnungsnummer = intval($_ENV['CUSTOM_FIELD_RECHNUNGSNUMMER']);
@@ -57,9 +55,9 @@ class App
         );
 
         $this->client = new Client([
-            'auth' => [$this->username, $this->password],
             'base_uri' => $this->baseUrl,
             'headers' => [
+                'Authorization' => 'Token ' . $this->token,
                 'Accept' => 'application/json',
             ],
             'handler' => $handlerStack,
