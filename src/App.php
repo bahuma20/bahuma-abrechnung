@@ -26,6 +26,11 @@ class App
     private int $documentTypeEingangsrechung;
     private int $documentTypeAusgangsrechung;
 
+    /**
+     * @var int[]
+     */
+    private array $excludedTags;
+
     private $client;
     private $logger;
     private $correspondentMap = [];
@@ -42,6 +47,7 @@ class App
 
         $this->documentTypeEingangsrechung = intval($_ENV['DOCUMENT_TYPE_EINGANGSRECHNUNG']);
         $this->documentTypeAusgangsrechung = intval($_ENV['DOCUMENT_TYPE_AUSGANGSRECHNUNG']);
+        $this->excludedTags = array_map(function($value) {return intval($value);}, explode(',', $_ENV['EXCLUDED_TAGS'] || ''));
 
         $this->logger = new Logger('BahumaAbrechnung');
         $this->logger->pushHandler(new StreamHandler('php://stdout', Level::Debug));
@@ -115,6 +121,7 @@ class App
         $startUrl = 'documents/?created__year=' . $year . '&document_type__id=' . $this->documentTypeEingangsrechung . '&ordering=created';
 
         $documents = $this->getPaged($startUrl);
+        $documents = $this->filterDocuments($documents);
 
         $outputData = [
             ['<center><b><style font-size="24">Bahuma Ausgaben ' . $year . '</style></b></center>', null, null, null, null, null],
@@ -164,6 +171,7 @@ class App
         $startUrl = 'documents/?created__year=' . $year . '&document_type__id=' . $this->documentTypeAusgangsrechung . '&ordering=created';
 
         $documents = $this->getPaged($startUrl);
+        $documents = $this->filterDocuments($documents);
 
         $outputData = [
             ['<center><b><style font-size="24">Bahuma Einnahmen ' . $year . '</style></b></center>', null, null, null],
@@ -268,5 +276,17 @@ class App
         $tag = new Tag($tagData->id, $tagData->name);
         $this->tagMap[$id] = $tag;
         return $tag;
+    }
+
+    private function filterDocuments(array $documents): array
+    {
+        return array_filter($documents, function ($document) {
+            foreach ($this->excludedTags as $excludedTag) {
+                if (in_array($excludedTag, $document->tags)) {
+                    return false;
+                }
+            }
+            return true;
+        });
     }
 }
