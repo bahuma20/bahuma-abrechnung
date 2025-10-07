@@ -21,7 +21,8 @@ class App
     private string $token;
 
     private int $customFieldBetrag;
-    private int $customFieldRechnungsnummer;
+    private int $customFieldRechnungsnummerEingangsrechnung;
+    private int $customFieldRechnungsnummerAusgangsrechnung;
 
     private int $documentTypeEingangsrechung;
     private int $documentTypeAusgangsrechung;
@@ -43,7 +44,8 @@ class App
         $this->token = $_ENV['PAPERLESS_TOKEN'];
 
         $this->customFieldBetrag = intval($_ENV['CUSTOM_FIELD_BETRAG']);
-        $this->customFieldRechnungsnummer = intval($_ENV['CUSTOM_FIELD_RECHNUNGSNUMMER']);
+        $this->customFieldRechnungsnummerEingangsrechnung = intval($_ENV['CUSTOM_FIELD_RECHNUNGSNUMMER_EINGANGSRECHNUNG']);
+        $this->customFieldRechnungsnummerAusgangsrechnung = intval($_ENV['CUSTOM_FIELD_RECHNUNGSNUMMER_AUSGANGSRECHNUNG']);
 
         $this->documentTypeEingangsrechung = intval($_ENV['DOCUMENT_TYPE_EINGANGSRECHNUNG']);
         $this->documentTypeAusgangsrechung = intval($_ENV['DOCUMENT_TYPE_AUSGANGSRECHNUNG']);
@@ -145,16 +147,20 @@ class App
 
             $date = new \DateTime($document->created);
 
+            $betrag = $this->getCustomFieldByFieldId($document, $this->customFieldBetrag);
+            $betrag = str_replace("EUR", "", $betrag);
+            $betrag = doubleval($betrag);
+
             $outputData[] = [
                 $date->format('d.m.Y'),
                 $category,
                 $document->title,
                 $correspondent->getName(),
-                $this->getCustomFieldByFieldId($document, $this->customFieldRechnungsnummer),
-                $this->getCustomFieldByFieldId($document, $this->customFieldBetrag) . ' €',
+                $this->getCustomFieldByFieldId($document, $this->customFieldRechnungsnummerEingangsrechnung),
+                $betrag . ' €',
             ];
 
-            $sum += $this->getCustomFieldByFieldId($document, $this->customFieldBetrag);
+            $sum += $betrag;
         }
 
         $outputData[] = [null, null, null, null, "<right><b>Summe:</b></right>", '<b>' . $sum . ' €</b>'];
@@ -189,14 +195,18 @@ class App
 
             $date = new \DateTime($document->created);
 
+            $betrag = $this->getCustomFieldByFieldId($document, $this->customFieldBetrag);
+            $betrag = str_replace("EUR", "", $betrag);
+            $betrag = doubleval($betrag);
+
             $outputData[] = [
                 $date->format('d.m.Y'),
-                $this->getCustomFieldByFieldId($document, $this->customFieldRechnungsnummer),
+                $this->getCustomFieldByFieldId($document, $this->customFieldRechnungsnummerAusgangsrechnung),
                 $correspondent->getName(),
-                $this->getCustomFieldByFieldId($document, $this->customFieldBetrag) . ' €',
+                $betrag . ' €',
             ];
 
-            $sum += $this->getCustomFieldByFieldId($document, $this->customFieldBetrag);
+            $sum += $betrag;
         }
 
         $outputData[] = [null, null, "<right><b>Summe:</b></right>", '<b>' . $sum . ' €</b>'];
